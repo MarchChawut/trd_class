@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+  trd_admin:
+    restart: always
+    build: .
+    working_dir: /app
+    container_name: trd_admin
+    networks:
+      - trd_service
+    environment:
+      NODE_ENV: development
+      RESOURCE_BASE_URL: "http://1.10.143.146:1036"
+      RESOURCE_NAME: "trd_admin"
+    ports:
+      - 8091:8091
+    command: yarn start
+
+networks:
+  trd_service: 
+    # driver: bridge
+    name: trd-network
