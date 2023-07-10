@@ -10,9 +10,17 @@ import {
 import { Box, Chip, ChipProps } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
 
 type Props = {};
+
+interface IUserData {
+  id: number,
+  Title: string;
+  FirstLastName: string;
+}
 
 export interface IAdminData {
   Title: string;
@@ -35,13 +43,26 @@ export default function Admindashboard({}: Props) {
     });
   }, []);
 
-  const [aaData, setBdata] = React.useState("");
-  
+  const [open, setOpen] = React.useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const [userData, setUserData] = React.useState<IUserData>({
+    id: 0,
+    Title: "",
+    FirstLastName: "",
+  });
+
   useEffect(() => {
-    if(router.query.userid){
+    console.log(adminData.FirstLastName)
+    if(router.query.userid && adminData.FirstLastName.length > 0){
       xRequest.post("/admin/usercheckin", {ID: router.query.userid}).then((response) => {
-        setBdata("asdf")
-        // console.log(response);
+        setUserData(response.data.resData)
+        handleOpen()
       });
     }
     
@@ -55,7 +76,7 @@ export default function Admindashboard({}: Props) {
       setAdata(response.data.resData);
       
     });
-  }, [aaData]);
+  }, [userData]);
 
   
   //Title, FirstLastName, Email, member, is_check_in
@@ -80,21 +101,46 @@ export default function Admindashboard({}: Props) {
     },
   ];
   //Title, FirstLastName, Email, member, is_check_in
+  const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
 
   return (
     <Box>
+      <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+               ลำดับที่ {userData.id} {userData.Title}{userData.FirstLastName}
+              </Typography>
+            </Box>
+          </Modal>
+
+
       {adminData.Email}
 
-      <div style={{ height: 400, width: "100%" }}>
+      <div style={{ height: 700, width: "100%" }}>
         <DataGrid
           rows={aData}
           columns={columns}
           initialState={{
             pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
+              paginationModel: { page: 0, pageSize: 10 },
             },
           }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[10, 10]}
         />
       </div>
     </Box>
